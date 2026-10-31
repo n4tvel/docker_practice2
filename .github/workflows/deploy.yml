@@ -34,11 +34,13 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-          Write-Output "Starting application stack..."
-          docker-compose down
-          docker-compose up -d --build
-          Write-Output "Waiting for services to start..."
-          Start-Sleep -Seconds 15
+          Write-Host "Cleaning up old containers..."
+          docker-compose down -v --remove-orphans
+          docker rm -f $(docker ps -aq) 2>$null
+          Write-Host "Starting application stack..."
+          docker-compose up -d --build --force-recreate
+          Write-Host "Waiting for services to start..."
+          Start-Sleep -Seconds 20
           docker-compose ps
 
       - name: Verify containers are running
